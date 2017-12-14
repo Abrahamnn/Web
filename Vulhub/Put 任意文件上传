@@ -1,1 +1,23 @@
+1. 漏洞原理： 
+漏洞本质Tomcat配置了可写（readonly=false），导致我们可以往服务器写文件： 代码如下 
+<servlet>
+    <servlet-name>default</servlet-name>
+    <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+    <init-param>
+        <param-name>debug</param-name>
+        <param-value>0</param-value>
+    </init-param>
+    <init-param>
+        <param-name>listings</param-name>
+        <param-value>false</param-value>
+    </init-param>
+    <init-param>
+        <param-name>readonly</param-name>
+        <param-value>false</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+</servlet>
 
+虽然Tomcat对文件后缀有一定检测（不能直接写jsp），但我们使用一些文件系统的特性（如Linux下可用/）来绕过了限制。
+
+1.直接发送
