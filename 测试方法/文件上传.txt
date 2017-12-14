@@ -1,19 +1,54 @@
-�ص�  �������ͷ��� ȱһ���ɣ�
+重点  （解析和访问 缺一不可）
 
 
-#��˵����©��
+#先说解析漏洞
  1.iis6.0
- ����©��   �����ļ��е�����Ϊ.asp��.asa ��.cer��.ashx��.htr��.cdx ���ļ��У�
- ��Ŀ¼�ڵ��κ���չ�����ļ�����IIS �����ű��ļ��ļ���������ִ��. ���Σ���IIS6.0 �£��ֺź���Ĳ���������Ҳ����˵ stu.asp;.jpg
-�ᱻ������������stu.asp������
+ 解析漏洞   建立文件夹的名字为.asp、.asa 、.cer、.ashx、.htr、.cdx 的文件夹，
+ 其目录内的任何扩展名的文件都被IIS 当作脚本文件文件来解析并执行. 畸形：在IIS6.0 下，分号后面的不被解析，也就是说 stu.asp;.jpg
+会被服务器看成是stu.asp来解析
  2.iis7.0 
- ����©��a.aspx.a;.a.aspx.jpg..jpg
+ 解析漏洞a.aspx.a;.a.aspx.jpg..jpg
  3.IIS 7.0/7.5
- Ĭ��Fast-CGI������ֱ����url��ͼƬ��ַ��������/1.php���������ͼƬ����php������
- 4.Nginx <0.8.03 ���ֽڴ���ִ��©�� 
- Ӱ���:0.5.,0.6., 0.7 <= 0.7.65, 0.8 <= 0.8.37 Nginx ��ͼƬ��Ƕ��PHP ����Ȼ��ͨ�����ʣ�ͼƬһ�仰��  xxx.jpg%00.php
- 5.Apache ����©��
- Apache �Ǵ��ҵ���ʼ�жϽ���,���Ϊ����ʶ�����,���������ж�.
- ����stu.php.owf.rar ��.owf���͡�.rar�� �����ֺ�׺��apache ����ʶ�����,apache
- �ͻ��stu.php.owf.rar ������php. ����ж��ǲ��ǺϷ��ĺ�׺�������©�������ùؼ�,����ʱ���Գ����ϴ�һ��stu.php.rara.jpg.png��������֪���ĳ�����׺��д�ϡ���ȥ�����Ƿ��ǺϷ���׺��
- Apache �����php3 �����ű��ļ���������
+ 默认Fast-CGI开启，直接在url中图片地址后面输入/1.php，会把正常图片当成php解析。
+ 4.Nginx <0.8.03 空字节代码执行漏洞 
+ 影响版:0.5.,0.6., 0.7 <= 0.7.65, 0.8 <= 0.8.37 Nginx 在图片中嵌入PHP 代码然后通过访问（图片一句话）  xxx.jpg%00.php
+ 5.Apache 解析漏洞
+ Apache 是从右到左开始判断解析,如果为不可识别解析,就再往左判断.
+ 比如stu.php.owf.rar “.owf”和”.rar” 这两种后缀是apache 不可识别解析,apache
+ 就会把stu.php.owf.rar 解析成php. 如何判断是不是合法的后缀就是这个漏洞的利用关键,测试时可以尝试上传一个stu.php.rara.jpg.png…（把你知道的常见后缀都写上…）去测试是否是合法后缀。
+ Apache 还会把php3 当做脚本文件来解析！
+ 
+ 
+ 再说其他的:
+ 
+ 测试环境：
+nginx/1.10.3
+PHP 5.5.34
+
+Post包： 
+POST /upload.php HTTP/1.1
+Host: localhost
+Content-Length: 274
+Cache-Control: max-age=0
+Origin: http://localhost
+Upgrade-Insecure-Requests: 1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryuKS18BporicXJfTx
+User-Agent: Mozilla/5.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,zh;q=0.8,de;q=0.6,en;q=0.4,fr;q=0.2
+Connection: close
+
+------WebKitFormBoundaryuKS18BporicXJfTx
+Content-Disposition: form-data; name="file_x"; filename="xx.php"
+
+从中获取特征为：
+请求Header中Content-Type存在以下特征：
+multipart/form-data（表示该请求是一个文件上传请求）
+存在boundary字符串（作用为分隔符，以区分POST数据）
+POST的内容存在以下特征：
+Content-Disposition
+name
+filename
+POST中的boundary的值就是Content-Type的值在最前面加了两个--，除了最后标识结束的boundary
+最后标识结束的boundary最后默认会多出两个--（测试时，最后一行的boundary删掉也能成功上传）
