@@ -1,0 +1,22 @@
+原理介绍： 
+Hibernate 是一种ORM框架，用来映射与tables相关的类定义（代码），并包含一些高级特性，包括缓存以及继承，
+通常应用于： Java 与.NET中使用。
+
+查询语言： 
+首先得知道HQL查询并不直接发送给数据库，而是由hibernate引擎对查询进行解析并解释，然后将其转换为SQL。
+为什么这个细节重要呢？因为有两种错误消息来源，一种来自hibernate引擎，一种来自数据库。
+缺陷： 注射模式非常有限，其没有联合，没有函数来创建简单延迟，没有系统函数，没有可用的元数据表等。
+Hibernate查询语言没有那些在后台数据库中可能存在的功能特性。
+由于Hibernate的HQL中，大多数情况下不支持union，更不支持数据库的meta data的查询，所以如何弄清楚实体名称和列名才能继续提取有用的数据，
+当前没有一种能爆出当前的列名。
+比较鸡肋的是:
+HQL注入除了万能密码、知道表名列名情况下盲注外，暂时没弄到其他的好方法来进行漏洞利用。
+常用palyload：
+'or aa=2 or ''='
+'or 1=2    and ''='%' 
+'and (select substring(password,1,1) from User where username='admin') = 'a'    or ''='%' and published = true
+
+
+网上另外一种注自动化注入：HQLmap  地址： 
+https://github.com/PaulSec/HQLmap
+
